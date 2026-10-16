@@ -1,26 +1,41 @@
 # JIRAN
 
-A neighbourhood app for residents of Bandar Bukit Raja 2, built as a tab inside
-the Sime Darby Property app. Meet the neighbours you just moved in next to,
-borrow and lend, join activities and help each other. No money involved.
+A neighbourhood app for residents of Bandar Bukit Raja 2, designed as a tab
+inside the Sime Darby Property app. Meet your neighbours, share items and
+skills, join community activities and help each other. No money involved.
+
+**Live demo:** https://jiran-yzone.vercel.app/
 
 ## Features
 
-- **Neighbourhood map** of your street in 3D, the precinct floor plan and the whole township
+- **Neighbourhood map**: your street in 3D, the precinct floor plan and the whole township
 - **Neighbours**: profiles, directory, connection requests and private chat
-- **Common ground**: shared-interest suggestions, interest groups and activity partners
 - **Share**: borrow and lend items, give-aways and free skill swaps
-- **Activities**: browse, join or create community activities
+- **Activities**: browse, join or create community activities and interest groups
 - **Help**: ask for or offer help, emergency contacts and flood check-ins
-- **Welcome**: onboarding, welcome guide, buddy programme and new resident checklist
+- **Welcome**: onboarding, welcome guide and buddy programme for new residents
+
+## Try it
+
+Open the live demo and sign in with one of these codes:
+
+| Code | Resident |
+|---|---|
+| `ADIRA-212` | Hana |
+| `ADIRA-120` | Irfan (new resident) |
+| `ADIRA-208` | Aisyah |
+| `ADIRA-211` | Ravi |
+| `SDP-ADMIN` | SDP Community Team |
+
+The demo runs in your browser and saves your changes on your device. All data is fictional.
 
 ## Tech stack
 
-- **Frontend**: React 18, Vite 5, Three.js
-- **Backend**: Node.js 22, Fastify 5, SQLite
-- **Shared logic**: TypeScript package used by both the server and the offline demo
+- **Frontend**: React, Vite, Three.js
+- **Backend**: Node.js, Fastify, SQLite
+- **Language**: TypeScript
 
-## Getting started
+## Run locally
 
 Requires Node.js 22.13 or newer.
 
@@ -30,54 +45,14 @@ npm run build
 npm start -w @jiran/server
 ```
 
-Open http://localhost:8787.
-
-For development with hot reload, run `npm run dev:server` and `npm run dev:web`,
-then open http://localhost:5173.
-
-Other commands:
-
-```bash
-npm test                          # run the API tests
-npm run typecheck                 # type-check all packages
-npm run build:demo -w @jiran/web  # build the offline demo into apps/web/dist-demo
-```
-
-The offline demo is a single HTML file that runs entirely in the browser and
-saves changes locally.
-
-## Demo accounts
-
-| Code | Resident |
-|---|---|
-| `ADIRA-212` | Hana |
-| `ADIRA-120` | Irfan (new resident, shows onboarding) |
-| `ADIRA-208` | Aisyah |
-| `ADIRA-211` | Ravi |
-| `SDP-ADMIN` | SDP Community Team (admin dashboard) |
-
-All demo data is fictional.
-
-## Configuration
-
-| Variable | Description | Default |
-|---|---|---|
-| `PORT` | Server port | `8787` |
-| `JIRAN_DB` | SQLite database file path | `apps/server/data/jiran.sqlite` |
-| `JIRAN_SECRET` | Token signing secret (set this outside development) | development secret |
-
-## Deployment
-
-The app is deployed on Vercel as the offline demo build. `vercel.json` sets the
-install command, build command and output folder, so importing the repo into
-Vercel and pressing Deploy is all that's needed. Each push to `main` redeploys.
+Then open http://localhost:8787.
 
 ## Project structure
 
 ```
 apps/
-  server/   Fastify API
-  web/      React web app
+  server/   Backend API
+  web/      Web app
 packages/
-  core/     Shared types, rules and API routes
+  core/     Shared logic
 ```
