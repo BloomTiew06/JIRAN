@@ -64,14 +64,13 @@ All demo data is fictional.
 |---|---|---|
 | `PORT` | Server port | `8787` |
 | `JIRAN_DB` | SQLite database file path | `apps/server/data/jiran.sqlite` |
-| `JIRAN_SECRET` | Token signing secret (required in production) | development secret |
+| `JIRAN_SECRET` | Token signing secret (set this outside development) | development secret |
 
 ## Deployment
 
-- **Demo on GitHub Pages**: enable Settings > Pages > Source: GitHub Actions.
-  Each push to `main` publishes the offline demo.
-- **Full app**: deploy with the included `Dockerfile`, or use `render.yaml` on
-  Render (New > Blueprint).
+The app is deployed on Vercel as the offline demo build. `vercel.json` sets the
+install command, build command and output folder, so importing the repo into
+Vercel and pressing Deploy is all that's needed. Each push to `main` redeploys.
 
 ## Project structure
 
