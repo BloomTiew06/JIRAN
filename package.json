@@ -1,0 +1,20 @@
+{
+  "name": "jiran",
+  "private": true,
+  "version": "0.1.0",
+  "description": "JIRAN: a neighbourhood mini game inside the Sime Darby Property app",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev -w @jiran/server",
+    "dev:web": "npm run dev -w @jiran/web",
+    "test": "npm test -w @jiran/server",
+    "typecheck": "tsc -p packages/core && tsc -p apps/server && tsc -p apps/web",
+    "build": "npm run build -w @jiran/web"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

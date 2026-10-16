@@ -1,0 +1,14 @@
+# One-click deploy on Render: New > Blueprint > pick this repo.
+services:
+  - type: web
+    name: jiran
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: JIRAN_SECRET
+        generateValue: true
+      # The free plan has no persistent disk, so the demo database lives in /tmp
+      # and is re-seeded with the demo residents whenever the service restarts.
+      - key: JIRAN_DB
+        value: /tmp/jiran.sqlite
