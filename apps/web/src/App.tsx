@@ -144,16 +144,26 @@ export function App() {
   const top = overlays[overlays.length - 1];
   const t = ctx?.t ?? translator('en');
 
+  // The map level actually on screen: only Adira residents have the floor plan and street view.
+  const hasSite = !!ctx && ctx.me.precinct.id === 'adira' && !ctx.me.isAdmin;
+  const shownLevel: MapLevel = !hasSite ? 'township' : mapLevel === 'street' && !ctx?.me.unitId ? 'site' : mapLevel;
+
+  // Back goes up one step: an open page, then another tab back to the map, then up the map
+  // levels (street view, floor plan, township), then out to the Sime Darby Property app.
+  const back = (() => {
+    if (!ctx || onboarding) return { label: 'Back to the Sime Darby Property app', run: () => toast('This returns to the Sime Darby Property app') };
+    if (top) return { label: 'Back', run: ctx.close };
+    if (tab !== 'map') return { label: 'Back to the map', run: () => { setTab('map'); setSection(null); } };
+    if (shownLevel === 'street') return { label: 'Back to the Adira floor plan', run: () => setMapLevel('site') };
+    if (shownLevel === 'site') return { label: 'Back to the township map', run: () => setMapLevel('township') };
+    return { label: 'Back to the Sime Darby Property app', run: () => toast('This returns to the Sime Darby Property app') };
+  })();
+
   return (
     <div className="phone">
       <div className="host-bar">
         <div className="host-left">
-          <button className="icon-btn" aria-label={top ? 'Back' : 'Back to the Sime Darby Property app'}
-            onClick={() => {
-              if (top && ctx) ctx.close();
-              else if (tab !== 'map') { setTab('map'); setSection(null); }
-              else toast('This returns to the Sime Darby Property app');
-            }}>
+          <button className="icon-btn" aria-label={back.label} onClick={back.run}>
             <Icon name="back" />
           </button>
           {api.mode === 'demo' && <span className="demo-pill">Demo</span>}
@@ -183,7 +193,6 @@ export function App() {
             <>
               <main className="content">
                 {tab === 'map' && (() => {
-                  const hasSite = ctx.me.precinct.id === 'adira' && !ctx.me.isAdmin;
                   const level = hasSite ? mapLevel : 'township';
                   return (
                     <div className="map-level" key={level}>
