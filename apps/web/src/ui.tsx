@@ -160,9 +160,9 @@ export function Page({ title, kicker, children, right }: { title: string; kicker
 export function Coin({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 28 28" aria-hidden="true">
-      <circle cx="14" cy="14" r="11.5" fill="#FFC94A" stroke="#2B2340" strokeWidth="2" />
+      <circle cx="14" cy="14" r="11.5" fill="#F7B733" stroke="#D9941A" strokeWidth="1.5" />
       <circle cx="14" cy="14" r="7" fill="none" stroke="#E8A21C" strokeWidth="2" />
-      <path d="M11 14l2 2 4-4" fill="none" stroke="#2B2340" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M11 14l2 2 4-4" fill="none" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -172,10 +172,10 @@ export function Stars({ value, onPick, size = 30, disabled }: { value: number; o
     <div className="stars" role={onPick ? 'radiogroup' : 'img'} aria-label={onPick ? 'Rating' : `${value} of 5 stars`}>
       {[1, 2, 3, 4, 5].map((n) => onPick ? (
         <button key={n} type="button" role="radio" aria-checked={value === n} aria-label={`${n} star${n > 1 ? 's' : ''}`} disabled={disabled} onClick={() => onPick(n)}>
-          <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" fill={n <= value ? '#FFC94A' : '#fff'} stroke="#2B2340" strokeWidth="1.6" strokeLinejoin="round" /></svg>
+          <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" fill={n <= value ? '#F7B733' : '#fff'} stroke={n <= value ? '#E09E1F' : '#CFCFCF'} strokeWidth="1.4" strokeLinejoin="round" /></svg>
         </button>
       ) : (
-        <svg key={n} width={size} height={size} viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" fill={n <= value ? '#FFC94A' : '#fff'} stroke="#2B2340" strokeWidth="1.6" strokeLinejoin="round" /></svg>
+        <svg key={n} width={size} height={size} viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" fill={n <= value ? '#F7B733' : '#fff'} stroke={n <= value ? '#E09E1F' : '#CFCFCF'} strokeWidth="1.4" strokeLinejoin="round" /></svg>
       ))}
     </div>
   );

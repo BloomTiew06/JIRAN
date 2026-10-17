@@ -147,19 +147,30 @@ export function App() {
   return (
     <div className="phone">
       <div className="host-bar">
-        <span className="sdp-mark" aria-hidden="true">SDP</span>
-        <span className="grow">Sime Darby Property <span className="muted">› JIRAN</span></span>
-        {api.mode === 'demo' && <span className="demo-pill">Demo data</span>}
-        {ctx && !onboarding && (
-          <>
-            <button className="icon-btn" onClick={() => go('notifications')} aria-label={`${t('notifications')}${ctx.me.unread ? `, ${ctx.me.unread} unread` : ''}`}>
-              <Icon name="bell" />{ctx.me.unread > 0 && <span className="dot-count">{ctx.me.unread > 9 ? '9+' : ctx.me.unread}</span>}
-            </button>
-            <button className="icon-btn" onClick={() => go('me')} aria-label={t('tab.me')}>
-              <Avatar name={ctx.me.firstName} color={ctx.me.avatar} photo={ctx.me.photo} size={30} />
-            </button>
-          </>
-        )}
+        <div className="host-left">
+          <button className="icon-btn" aria-label={top ? 'Back' : 'Back to the Sime Darby Property app'}
+            onClick={() => {
+              if (top && ctx) ctx.close();
+              else if (tab !== 'map') { setTab('map'); setSection(null); }
+              else toast('This returns to the Sime Darby Property app');
+            }}>
+            <Icon name="back" />
+          </button>
+          {api.mode === 'demo' && <span className="demo-pill">Demo</span>}
+        </div>
+        <span className="host-title">JIRAN</span>
+        <div className="host-right">
+          {ctx && !onboarding && (
+            <>
+              <button className="icon-btn" onClick={() => go('notifications')} aria-label={`${t('notifications')}${ctx.me.unread ? `, ${ctx.me.unread} unread` : ''}`}>
+                <Icon name="bell" />{ctx.me.unread > 0 && <span className="dot-count">{ctx.me.unread > 9 ? '9+' : ctx.me.unread}</span>}
+              </button>
+              <button className="icon-btn" onClick={() => go('me')} aria-label={t('tab.me')}>
+                <Avatar name={ctx.me.firstName} color={ctx.me.avatar} photo={ctx.me.photo} size={30} />
+              </button>
+            </>
+          )}
+        </div>
       </div>
       {!ctx ? (
         <SignIn onCode={signInWith} error={authError} busy={busy} mode={api.mode}
