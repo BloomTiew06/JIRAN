@@ -6,7 +6,7 @@ import { usePanZoom } from '../panzoom.ts';
 import { Coin, Sheet, fmtWhen, useApp, useData } from '../ui.tsx';
 
 type Lot = Site['lots'][number];
-type Filter = 'all' | 'lend' | 'help' | 'open_house' | 'new' | 'connected';
+type Filter = 'all' | 'lend' | 'help' | 'open_house' | 'new' | 'connected' | 'joined' | 'not_joined' | 'need_help';
 
 const FILTERS: { id: Filter; label: string; dot: string }[] = [
   { id: 'all', label: 'All homes', dot: '#5DBB72' },
@@ -15,6 +15,13 @@ const FILTERS: { id: Filter; label: string; dot: string }[] = [
   { id: 'lend', label: 'Lend', dot: BADGE_STYLE.lend.color },
   { id: 'help', label: 'Help', dot: BADGE_STYLE.help.color },
   { id: 'open_house', label: 'Open house', dot: BADGE_STYLE.open_house.color },
+];
+
+/** Filters for the SDP community team, who see homes but not residents. */
+const STAFF_FILTERS: { id: Filter; label: string; dot: string }[] = [
+  { id: 'all', label: 'All homes', dot: '#5DBB72' },
+  { id: 'joined', label: 'On JIRAN', dot: '#D83A34' },
+  { id: 'not_joined', label: 'Not joined yet', dot: '#B9AA99' },
 ];
 
 const LOT_LABEL = { intermediate: 'Intermediate lot, 20 ft × 75 ft', end: 'End lot, 22 ft × 75 ft', corner: 'Corner lot, 22 ft × 75 ft' };
@@ -37,8 +44,18 @@ function SiteCanvas({ data, onTownship, onStreet, me, go, open }: { data: Site; 
   const [sel, setSel] = useState<{ kind: 'lot'; lot: Lot } | { kind: 'amenity'; code: string } | null>(null);
   const ui = 1 / pz.view.scale;
   const showNames = pz.view.scale >= 2.3;
+  const staff = !!data.staff;
+  const filters = staff
+    ? [...STAFF_FILTERS, ...(data.floodAlert ? [{ id: 'need_help' as Filter, label: 'Needs help', dot: FLOOD_STYLE.need_help.color }] : [])]
+    : FILTERS;
 
   const match = (l: Lot) => {
+    if (staff) {
+      if (filter === 'joined') return !!l.joined;
+      if (filter === 'not_joined') return l.occupied && !l.joined;
+      if (filter === 'need_help') return l.flood === 'need_help';
+      return true;
+    }
     const r = l.resident;
     if (filter === 'all' || r?.isYou) return true;
     if (!r) return false;
@@ -144,10 +161,10 @@ function SiteCanvas({ data, onTownship, onStreet, me, go, open }: { data: Site; 
             <div className="kicker">{data.phase} · {data.stats.homes} homes · {data.stats.onJiran} on JIRAN</div>
             <strong>{data.name}</strong>
           </div>
-          <button className="points-pill" onClick={() => go('me')} aria-label={`${me.points} JIRAN points`}><Coin /> {me.points}</button>
+          {!staff && <button className="points-pill" onClick={() => go('me')} aria-label={`${me.points} JIRAN points`}><Coin /> {me.points}</button>}
         </div>
         <div className="chips map-chips" role="toolbar" aria-label="Show homes">
-          {FILTERS.map((f) => (
+          {filters.map((f) => (
             <button key={f.id} className={filter === f.id ? 'chip on' : 'chip'} aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
               <span className="dot" style={{ background: f.dot }} />{f.label}
             </button>
@@ -161,7 +178,7 @@ function SiteCanvas({ data, onTownship, onStreet, me, go, open }: { data: Site; 
           <button className="round-btn" onClick={() => pz.zoom(0.77)} aria-label="Zoom out"><Icon name="zoomOut" /></button>
           {myLot && <button className="round-btn" onClick={() => pz.centre(myLot.x + myLot.w / 2, myLot.y + myLot.h / 2, 2.6)} aria-label="Go to my house"><Icon name="locate" /></button>}
         </div>
-        {data.floodAlert && <button className="flood-banner floating" onClick={() => open({ kind: 'flood' })}><Icon name="drop" /> Flood {data.floodAlert.level}: check in</button>}
+        {data.floodAlert && !staff && <button className="flood-banner floating" onClick={() => open({ kind: 'flood' })}><Icon name="drop" /> Flood {data.floodAlert.level}: check in</button>}
         {data.season && <div className="season-pill" aria-label={`${data.season.name} decorations are up`}><Icon name="sparkle" size={16} /> {data.season.name} season</div>}
       </div>
 
@@ -169,7 +186,14 @@ function SiteCanvas({ data, onTownship, onStreet, me, go, open }: { data: Site; 
         <Sheet onClose={() => setSel(null)} label={`No. ${sel.lot.no}, ${sel.lot.street}`}>
           <div className="kicker">{LOT_LABEL[sel.lot.type]}</div>
           <h2>No. {sel.lot.no}, {sel.lot.street}</h2>
-          {sel.lot.resident?.isYou ? (
+          {staff ? (
+            <>
+              <p className="muted">{sel.lot.joined
+                ? 'This home is on JIRAN. Residents’ names stay private to their neighbours, so the SDP team sees the home only.'
+                : sel.lot.occupied ? 'Keys have been handed over. The owner hasn’t joined JIRAN yet.' : 'Keys for this home have not been handed over yet.'}</p>
+              {sel.lot.flood && <p className="strong" style={{ color: FLOOD_STYLE[sel.lot.flood].color }}>Flood check-in: {FLOOD_STYLE[sel.lot.flood].label}</p>}
+            </>
+          ) : sel.lot.resident?.isYou ? (
             <>
               <p className="muted">This is your home. Change your house colour and decorations in your profile.</p>
               <button className="btn primary" onClick={() => { setSel(null); go('me'); }}><Icon name="home" /> My house</button>
@@ -186,7 +210,7 @@ function SiteCanvas({ data, onTownship, onStreet, me, go, open }: { data: Site; 
             <div className="kicker">Amenity {a.code} · {a.area === 'garden' ? 'Taman Adira neighbourhood garden' : 'Adira linear park'}</div>
             <h2>{a.name}</h2>
             <p className="muted small">From SDP’s Adira amenity plan. The spot on this map is approximate.</p>
-            <button className="btn primary" onClick={() => { setSel(null); go('activities:new'); }}><Icon name="calendar" /> Host an activity</button>
+            {!staff && <button className="btn primary" onClick={() => { setSel(null); go('activities:new'); }}><Icon name="calendar" /> Host an activity</button>}
           </Sheet>
         );
       })()}
@@ -212,7 +236,7 @@ function LotShape({ l, dim, ui, showNames, onTap }: { l: Lot; dim: boolean; ui: 
   const half = depth / 2;
   const porch0 = north ? l.y : l.y + l.h - 18;
   const yard0 = north ? l.y + 67 : l.y;
-  const base = r ? r.houseColor : l.occupied ? '#B9AA99' : '#D9D2C7';
+  const base = r ? r.houseColor : l.paint ?? (l.occupied ? '#B9AA99' : '#D9D2C7');
   const frontSlope = shade(base, 0.2);
   const backSlope = shade(base, -0.14);
   const frontY = north ? body0 : body0 + half;
@@ -224,7 +248,7 @@ function LotShape({ l, dim, ui, showNames, onTap }: { l: Lot; dim: boolean; ui: 
   const seed = l.no * 7 + l.x;
   const car = l.occupied && seed % 3 !== 0 ? CARS[seed % CARS.length] : null;
   const carY = porch0 + 2.5;
-  const label = r ? (r.isYou ? 'Your house' : `${r.firstName}’s house`) : 'Home not on JIRAN yet';
+  const label = r ? (r.isYou ? 'Your house' : `${r.firstName}’s house`) : l.joined ? 'Home on JIRAN' : 'Home not on JIRAN yet';
   return (
     <g className={`lot${dim ? ' dim' : ''}${r?.isYou ? ' mine' : ''}`} role="button" tabIndex={0} aria-label={`${label}, No. ${l.no} ${l.street}`}
       onClick={onTap} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onTap(); }}>

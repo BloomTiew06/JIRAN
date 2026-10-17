@@ -317,6 +317,8 @@ export class Jiran extends Assist {
   site(actorId: Id) {
     const me = this.member(actorId);
     if (me.precinctId !== 'adira') fail('not_found', 'This precinct has no site plan yet');
+    // SDP staff see homes only: whether each one is on JIRAN and its flood check-in, never who lives there.
+    const staff = !!me.isAdmin;
     const plan = buildAdiraSite();
     const alert = this.activeAlertFor('adira');
     const checkins = alert ? this.s.floodCheckins.all().filter((c) => c.alertId === alert.id) : [];
@@ -328,7 +330,8 @@ export class Jiran extends Assist {
     const season = seasonFor(this.today());
     const lots = this.s.units.all().filter((u) => u.precinctId === 'adira').map((u) => {
       const r = byUnit.get(u.id);
-      const visible = r && r.onboarded && (r.privacy.directory || r.id === me.id);
+      const visible = !staff && r && r.onboarded && (r.privacy.directory || r.id === me.id);
+      const joined = !!r && r.onboarded && !r.isAdmin;
       const badge = !visible ? null : hosting.has(r!.id) ? 'open_house' : this.isNew(r!) ? 'new' : helpers.has(r!.id) ? 'help' : lenders.has(r!.id) ? 'lend' : null;
       return {
         ...u,
@@ -338,6 +341,8 @@ export class Jiran extends Assist {
           decor: { ...r!.decor, festive: !!season && r!.decor.festive !== false },
         } : null,
         occupied: !!r,
+        joined: staff ? joined : null,
+        paint: staff && joined ? r!.houseColor : null,
         flood: r ? (checkins.find((c) => c.residentId === r.id)?.status ?? null) : null,
       };
     });
@@ -351,7 +356,8 @@ export class Jiran extends Assist {
     const unread = this.s.notices.all().filter((n) => n.precinctId === 'adira' && !n.resolved).length;
     return {
       ...plan, lots, pins, floodAlert: alert, season, noticeCount: unread, myUnitId: me.unitId,
-      stats: { homes: lots.length, onJiran: lots.filter((l) => l.resident).length, connected: this.connectionsOf(me.id).length },
+      staff,
+      stats: { homes: lots.length, onJiran: lots.filter((l) => (staff ? l.joined : l.resident)).length, connected: staff ? 0 : this.connectionsOf(me.id).length },
     };
   }
 

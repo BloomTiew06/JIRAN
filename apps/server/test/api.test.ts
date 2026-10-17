@@ -39,6 +39,21 @@ test('Adira site plan has the 109 lots from SDP’s Series 1 facts', async () =>
   assert.ok(lots.some((l) => l.resident?.firstName === 'Hana'));
 });
 
+test('the SDP team can open the Adira site plan, but sees homes only, never residents', async () => {
+  const { login, call } = await setup();
+  const sdp = await login('SDP-ADMIN');
+  const site = await call(sdp, 'GET', '/api/site');
+  assert.equal(site.status, 200);
+  const lots = site.body.lots as { resident: unknown; joined: boolean | null; paint: string | null }[];
+  assert.equal(lots.length, 109);
+  assert.ok(lots.every((l) => l.resident === null));
+  assert.ok(!JSON.stringify(site.body).includes('"firstName"'));
+  const joined = lots.filter((l) => l.joined).length;
+  assert.ok(joined > 0);
+  assert.equal(site.body.stats.onJiran, joined);
+  assert.equal(site.body.staff, true);
+});
+
 test('joining needs PDPA consent and 18+, then the profile is live', async () => {
   const { login, call } = await setup();
   const irfan = await login('ADIRA-120');

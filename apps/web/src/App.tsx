@@ -144,8 +144,8 @@ export function App() {
   const top = overlays[overlays.length - 1];
   const t = ctx?.t ?? translator('en');
 
-  // The map level actually on screen: only Adira residents have the floor plan and street view.
-  const hasSite = !!ctx && ctx.me.precinct.id === 'adira' && !ctx.me.isAdmin;
+  // The map level actually on screen: Adira has the floor plan (residents and the SDP team) and street view (residents).
+  const hasSite = !!ctx && ctx.me.precinct.id === 'adira';
   const shownLevel: MapLevel = !hasSite ? 'township' : mapLevel === 'street' && !ctx?.me.unitId ? 'site' : mapLevel;
 
   // Back goes up one step: an open page, then another tab back to the map, then up the map

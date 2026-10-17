@@ -288,7 +288,7 @@ export function TownshipScreen({ onOpenStreet }: { onOpenStreet: () => void }) {
         <div className="map-card card">
           <div className="row">
             <div className="grow">
-              <div className="kicker">{selP.isHome ? 'Your precinct' : selP.status === 'upcoming' ? 'Future phase' : 'Precinct'}</div>
+              <div className="kicker">{selP.isHome && !me.isAdmin ? 'Your precinct' : selP.status === 'upcoming' ? 'Future phase' : 'Precinct'}</div>
               <h2>{selP.name}</h2>
             </div>
             <button className="round-btn" onClick={() => setSel(null)} aria-label="Close"><Icon name="close" /></button>
