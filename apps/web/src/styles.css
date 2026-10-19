@@ -596,3 +596,17 @@ h2 { font-size: 17px; }
 .signin-hero p { font-weight: 500; color: var(--ink-2); }
 .hero-card { background: #FAF6F1; }
 .host-bar .avatar { color: var(--ink); }
+
+/* Standard phone size on larger screens: the app is always laid out on a 390 × 844 screen
+   (iPhone 14/15) in a slim bezel. On a shorter window the whole phone is scaled down like a
+   picture (--phone-zoom, set in main.tsx), so the layout never changes. Real phones stay full screen. */
+@media (min-width: 600px) {
+  body { padding: 0; }
+  #root { display: flex; align-items: center; justify-content: center; }
+  .phone {
+    flex: none; max-width: none; margin: 0; width: 410px; height: 864px;
+    border: 10px solid #1C1C1E; border-radius: 50px;
+    box-shadow: 0 0 0 2px #3A3A3C, 0 24px 60px rgba(0, 0, 0, .35);
+    zoom: var(--phone-zoom, 1);
+  }
+}

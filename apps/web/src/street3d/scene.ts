@@ -450,14 +450,17 @@ export function createStreetScene(canvasHost: HTMLElement, site: Site, onChange:
     return (o?.userData.lotId as string | undefined) ?? null;
   };
 
+  // Labels are positioned in the canvas's own layout pixels, which stay the same when the phone
+  // frame is scaled down on a computer (CSS zoom); getBoundingClientRect would count the scaling twice.
+  let size = { w: 1, h: 1 };
   const v = new THREE.Vector3();
   const project = (x: number, y: number, z: number) => {
     v.set(x, y, z).project(camera);
-    const rect = renderer.domElement.getBoundingClientRect();
-    return { x: ((v.x + 1) / 2) * rect.width, y: ((1 - v.y) / 2) * rect.height, visible: v.z < 1 && v.z > -1 };
+    return { x: ((v.x + 1) / 2) * size.w, y: ((1 - v.y) / 2) * size.h, visible: v.z < 1 && v.z > -1 };
   };
 
   const resize = (w: number, h: number) => {
+    size = { w: Math.max(1, w), h: Math.max(1, h) };
     renderer.setSize(w, h, false);
     renderer.domElement.style.width = `${w}px`;
     renderer.domElement.style.height = `${h}px`;
